@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RoomTwin — Paramètres</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gd:#243d31;
+    --gm:#2f5543;
+    --gs:#7dbf96;
+    --gs2:#9bc8ac;
+    --bd:#c9b89a;
+    --bm:#ddd0b8;
+    --bl:#f0e8d8;
+    --bc:#faf5ec;
+    --bcc:#f5ede0;
+    --white:#ffffff;
+    --danger:#b24545;
+    --warn:#c97c2a;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    min-height:100vh;
+    font-family:'DM Sans',sans-serif;
+    background:var(--bc);
+    display:flex;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar{
+    width:220px;
+    flex-shrink:0;
+    background:linear-gradient(180deg,#fff 0%,var(--bcc) 100%);
+    border-right:1px solid rgba(201,184,154,.3);
+    display:flex;
+    flex-direction:column;
+    padding:24px 0;
+    position:fixed;
+    top:0;left:0;bottom:0;
+    z-index:10;
+  }
+
+  .logo-row{
+    display:flex;align-items:center;gap:11px;
+    padding:0 20px 24px;
+    border-bottom:1px solid rgba(201,184,154,.2);
+  }
+  .logo-box{
+    width:36px;height:36px;
+    background:linear-gradient(145deg,var(--gm),var(--gd));
+    border-radius:10px;
+    display:grid;grid-template-columns:repeat(2,1fr);
+    gap:2px;padding:5px;flex-shrink:0;
+    box-shadow:0 4px 12px rgba(36,61,49,.18);
+  }
+  .sq{border-radius:2px}
+  .s1{background:rgba(255,255,255,.4)}.s2{background:rgba(255,255,255,.7)}
+  .s3{background:rgba(255,255,255,.85)}.s4{background:var(--bd)}
+  .brand-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--gd)}
+  .brand-sub{font-size:9px;color:var(--gs);letter-spacing:2px;text-transform:uppercase}
+
+  .nav-label{
+    font-size:9px;letter-spacing:2px;text-transform:uppercase;
+    color:var(--bd);padding:20px 20px 8px;
+  }
+
+  .nav-item{
+    display:flex;align-items:center;gap:11px;
+    padding:11px 20px;
+    font-size:13px;color:#5a7060;
+    cursor:pointer;border-radius:0;
+    transition:all .2s;
+    text-decoration:none;
+    border-left:3px solid transparent;
+  }
+  .nav-item:hover{background:rgba(125,191,150,.08);color:var(--gd)}
+  .nav-item.active{
+    background:linear-gradient(90deg,rgba(47,85,67,.1),transparent);
+    color:var(--gd);font-weight:500;
+    border-left:3px solid var(--gm);
+  }
+  .nav-item svg{flex-shrink:0;opacity:.7}
+  .nav-item.active svg{opacity:1}
+
+  .sidebar-footer{
+    margin-top:auto;
+    padding:16px 20px;
+    border-top:1px solid rgba(201,184,154,.2);
+  }
+  .btn-logout{
+    display:flex;align-items:center;gap:9px;
+    font-size:12px;color:var(--danger);
+    cursor:pointer;background:none;border:none;
+    padding:8px 10px;border-radius:8px;
+    transition:background .2s;width:100%;
+  }
+  .btn-logout:hover{background:rgba(178,69,69,.07)}
+
+  /* ── MAIN ── */
+  .main{
+    margin-left:220px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar{
+    height:64px;
+    background:rgba(255,255,255,.88);
+    border-bottom:1px solid rgba(201,184,154,.22);
+    backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 32px;
+    position:sticky;top:0;z-index:5;
+  }
+  .topbar-left h1{
+    font-family:'Cormorant Garamond',serif;
+    font-size:28px;font-weight:400;color:var(--gd);
+    display:flex;align-items:center;gap:10px;
+  }
+  .topbar-left p{font-size:11px;color:#8a9e93;margin-top:1px}
+
+  .topbar-right{display:flex;align-items:center;gap:16px}
+  .time-badge{
+    font-size:13px;font-weight:500;color:var(--gd);
+    background:rgba(36,61,49,.06);
+    padding:6px 14px;border-radius:20px;
+    border:1px solid rgba(36,61,49,.1);
+    font-variant-numeric:tabular-nums;
+  }
+  .user-chip{
+    display:flex;align-items:center;gap:9px;
+    background:rgba(255,255,255,.7);
+    border:1px solid rgba(201,184,154,.35);
+    border-radius:30px;padding:5px 14px 5px 5px;
+  }
+  .user-avatar{
+    width:32px;height:32px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gm),var(--gd));
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:500;color:#fff;letter-spacing:.5px;
+  }
+  .user-info-text{font-size:12px;color:var(--gd);font-weight:500}
+  .user-role-badge{
+    font-size:9px;display:block;
+    text-transform:uppercase;letter-spacing:1px;
+    color:var(--gs);font-weight:400;
+  }
+
+  /* ── CONTENT ── */
+  .content{
+    padding:28px 32px 40px;
+    flex:1;
+  }
+
+  /* ── MODE TABS ── */
+  .mode-tabs{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:12px;margin-bottom:28px;
+  }
+  .mode-tab{
+    border-radius:16px;padding:16px 20px;
+    display:flex;align-items:center;gap:14px;
+    cursor:pointer;border:2px solid transparent;
+    transition:all .25s;position:relative;overflow:hidden;
+  }
+  .mode-tab.active{
+    background:var(--gm);
+    border-color:var(--gm);
+  }
+  .mode-tab.inactive{
+    background:rgba(255,255,255,.7);
+    border-color:rgba(201,184,154,.3);
+  }
+  .mode-tab.locked{
+    background:rgba(240,232,216,.4);
+    border-color:rgba(201,184,154,.2);
+    cursor:not-allowed;
+    opacity:.65;
+  }
+  .mode-tab-icon{
+    width:40px;height:40px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .mode-tab.active .mode-tab-icon{background:rgba(255,255,255,.18)}
+  .mode-tab.inactive .mode-tab-icon{background:rgba(36,61,49,.07)}
+  .mode-tab.locked .mode-tab-icon{background:rgba(201,184,154,.2)}
+  .mode-tab-title{font-size:14px;font-weight:500}
+  .mode-tab.active .mode-tab-title{color:#fff}
+  .mode-tab.inactive .mode-tab-title,.mode-tab.locked .mode-tab-title{color:var(--gd)}
+  .mode-tab-sub{font-size:11px;margin-top:2px}
+  .mode-tab.active .mode-tab-sub{color:rgba(255,255,255,.7)}
+  .mode-tab.inactive .mode-tab-sub,.mode-tab.locked .mode-tab-sub{color:#8a9e93}
+
+  .lock-overlay{
+    position:absolute;top:10px;right:12px;
+    display:flex;align-items:center;gap:5px;
+    background:rgba(178,69,69,.1);
+    border:1px solid rgba(178,69,69,.18);
+    border-radius:20px;padding:3px 9px;
+    font-size:10px;color:var(--danger);
+    letter-spacing:.5px;
+  }
+
+  /* ── PARAMS GRID ── */
+  .params-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:20px;
+  }
+
+  .params-section{
+    background:rgba(255,255,255,.72);
+    border:1px solid rgba(201,184,154,.25);
+    border-radius:20px;padding:24px;
+    position:relative;overflow:hidden;
+  }
+  .params-section.locked-section{
+    opacity:.5;
+    filter:grayscale(.4);
+    pointer-events:none;
+  }
+
+  .section-header{margin-bottom:6px}
+  .section-title{
+    font-size:10px;letter-spacing:2px;text-transform:uppercase;
+    font-weight:500;color:var(--gd);margin-bottom:4px;
+  }
+  .section-desc{font-size:11px;color:#8a9e93;margin-bottom:20px;line-height:1.5}
+
+  /* ── PARAM CARD ── */
+  .param-card{
+    background:#fff;
+    border:1px solid rgba(201,184,154,.2);
+    border-radius:14px;padding:16px;
+    margin-bottom:12px;
+    transition:box-shadow .2s;
+  }
+  .param-card:hover{box-shadow:0 4px 16px rgba(36,61,49,.08)}
+  .param-card:last-of-type{margin-bottom:0}
+
+  .param-top{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .param-left{display:flex;align-items:center;gap:12px}
+  .param-icon{
+    width:38px;height:38px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;flex-shrink:0;
+  }
+  .param-name{font-size:13px;font-weight:500;color:var(--gd)}
+  .param-sub{font-size:11px;color:#8a9e93;margin-top:1px}
+  .param-value{font-size:18px;font-weight:600;white-space:nowrap}
+
+  /* ── SLIDER ── */
+  .slider-row{display:flex;align-items:center;gap:10px}
+  .slider-min,.slider-max{font-size:10px;color:#aaa;white-space:nowrap}
+  input[type=range]{
+    flex:1;height:4px;
+    -webkit-appearance:none;appearance:none;
+    border-radius:4px;outline:none;cursor:pointer;
+    transition:opacity .2s;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:16px;height:16px;border-radius:50%;
+    border:2px solid #fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.18);
+    cursor:pointer;transition:transform .15s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+
+  /* Slider colors */
+  .sl-temp{background:linear-gradient(90deg,#e8c4a0,#e07a5f);accent-color:#e07a5f}
+  .sl-temp::-webkit-slider-thumb{background:#e07a5f}
+  .val-temp{color:#e07a5f}
+
+  .sl-light{background:linear-gradient(90deg,#f0e0a0,#d4a017);accent-color:#d4a017}
+  .sl-light::-webkit-slider-thumb{background:#d4a017}
+  .val-light{color:#d4a017}
+
+  .sl-elec{background:linear-gradient(90deg,#c8b4e8,#7c4dce);accent-color:#7c4dce}
+  .sl-elec::-webkit-slider-thumb{background:#7c4dce}
+  .val-elec{color:#7c4dce}
+
+  .sl-ext-temp{background:linear-gradient(90deg,#a0c4e8,#2980b9);accent-color:#2980b9}
+  .sl-ext-temp::-webkit-slider-thumb{background:#2980b9}
+  .val-ext-temp{color:#2980b9}
+
+  .sl-co2{background:linear-gradient(90deg,#a8d8b4,#2f7d52);accent-color:#2f7d52}
+  .sl-co2::-webkit-slider-thumb{background:#2f7d52}
+  .val-co2{color:#2f7d52}
+
+  .sl-hum{background:linear-gradient(90deg,#a8c8e8,#1a6fa0);accent-color:#1a6fa0}
+  .sl-hum::-webkit-slider-thumb{background:#1a6fa0}
+  .val-hum{color:#1a6fa0}
+
+  /* ── INFO NOTES ── */
+  .info-note{
+    display:flex;align-items:flex-start;gap:10px;
+    background:rgba(125,191,150,.07);
+    border:1px solid rgba(125,191,150,.18);
+    border-radius:12px;padding:12px 14px;
+    margin-top:16px;
+    font-size:11px;color:#3b6044;line-height:1.55;
+  }
+  .info-note.admin-note{
+    background:rgba(201,184,154,.1);
+    border-color:rgba(201,184,154,.25);
+    color:#6b5a3e;
+  }
+  .info-icon{
+    width:28px;height:28px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    background:rgba(125,191,150,.18);
+    font-size:13px;
+  }
+  .info-note.admin-note .info-icon{background:rgba(201,184,154,.25)}
+
+  /* ── LOCK OVERLAY ON SECTION ── */
+  .section-lock-banner{
+    position:absolute;inset:0;
+    background:rgba(250,245,236,.82);
+    backdrop-filter:blur(4px);
+    border-radius:20px;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    gap:10px;z-index:3;
+  }
+  .section-lock-banner svg{color:var(--danger);opacity:.6}
+  .section-lock-banner p{
+    font-size:12px;color:#8a6a5a;text-align:center;
+    max-width:200px;line-height:1.55;
+  }
+  .section-lock-banner strong{color:var(--gd)}
+
+  /* ── FOOTER BAR ── */
+  .footer-bar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 32px;
+    border-top:1px solid rgba(201,184,154,.2);
+    background:rgba(255,255,255,.7);
+    backdrop-filter:blur(8px);
+    position:sticky;bottom:0;
+  }
+  .btn-reset{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 20px;
+    background:transparent;
+    border:1.5px solid rgba(201,184,154,.5);
+    border-radius:10px;
+    font-size:13px;color:var(--gd);
+    cursor:pointer;font-family:'DM Sans',sans-serif;
+    transition:all .2s;
+  }
+  .btn-reset:hover{background:rgba(201,184,154,.12);border-color:var(--bd)}
+
+  .btn-save{
+    display:flex;align-items:center;gap:9px;
+    padding:12px 28px;
+    background:linear-gradient(135deg,var(--gm),var(--gd));
+    color:#fff;border:none;border-radius:12px;
+    font-size:13px;font-weight:500;
+    cursor:pointer;font-family:'DM Sans',sans-serif;
+    box-shadow:0 6px 18px rgba(36,61,49,.2);
+    transition:all .2s;
+  }
+  .btn-save:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(36,61,49,.25);opacity:.95}
+  .btn-save:active{transform:scale(.98)}
+
+  /* ── TOAST ── */
+  .toast{
+    position:fixed;top:80px;right:28px;
+    background:var(--gd);color:#fff;
+    padding:12px 20px;border-radius:12px;
+    font-size:13px;
+    box-shadow:0 8px 24px rgba(36,61,49,.3);
+    transform:translateX(200%);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    z-index:100;
+    display:flex;align-items:center;gap:10px;
+  }
+  .toast.show{transform:translateX(0)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<nav class="sidebar">
+  <div class="logo-row">
+    <div class="logo-box">
+      <div class="sq s1"></div><div class="sq s2"></div>
+      <div class="sq s3"></div><div class="sq s4"></div>
+    </div>
+    <div>
+      <div class="brand-name">RoomTwin</div>
+      <div class="brand-sub">Digital Twin</div>
+    </div>
+  </div>
+
+  <div class="nav-label">Navigation</div>
+
+<a class="nav-item" href="dashboard-pfe.html">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+      stroke="currentColor" stroke-width="1.6"/>
+    <polyline points="9 22 9 12 15 12 15 22"
+      stroke="currentColor" stroke-width="1.6"/>
+  </svg>
+  Accueil
+</a>
+  <a class="nav-item active" href="#">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.6"/></svg>
+    Paramètres
+  </a>
+
+  <a class="nav-item" href="detection-pfe.html">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+      <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    Détection
+  </a>
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="logout()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      Déconnexion
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1>
+        Paramètres
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#9b6dbe" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#9b6dbe" stroke-width="1.8"/></svg>
+      </h1>
+      <p>Configurez les paramètres de votre Smart Room</p>
+    </div>
+    <div class="topbar-right">
+      <div class="time-badge" id="clockEl">--:--</div>
+      <div class="user-chip">
+        <div class="user-avatar" id="avatarEl">?</div>
+        <div>
+          <div class="user-info-text" id="userNameEl">—</div>
+          <span class="user-role-badge" id="userRoleEl">—</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- MODE TABS -->
+    <div class="mode-tabs">
+      <!-- User mode tab (toujours actif) -->
+      <div class="mode-tab active">
+        <div class="mode-tab-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="white" stroke-width="1.6"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="mode-tab-title">Mode Utilisateur</div>
+          <div class="mode-tab-sub">Paramètres de confort</div>
+        </div>
+      </div>
+
+      <!-- Admin mode tab -->
+      <div class="mode-tab" id="adminTab">
+        <div class="mode-tab-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="adminTabIcon"><path d="M12 3l8 4v5c0 5-3.5 9-8 10C7.5 21 4 17 4 12V7l8-4z" stroke="#243d31" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="#243d31" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="mode-tab-title">Mode Administrateur</div>
+          <div class="mode-tab-sub">Paramètres avancés</div>
+        </div>
+        <div class="lock-overlay" id="adminLockBadge">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="3" stroke="currentColor" stroke-width="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Accès restreint
+        </div>
+      </div>
+    </div>
+
+    <!-- PARAMS GRID -->
+    <div class="params-grid">
+
+      <!-- ══ CONFORT (gauche) ══ -->
+      <div class="params-section">
+        <div class="section-header">
+          <div class="section-title">Paramètres de confort</div>
+          <div class="section-desc">Ajustez les paramètres pour optimiser votre confort et votre consommation.</div>
+        </div>
+
+        <!-- Température consigne -->
+        <div class="param-card">
+          <div class="param-top">
+            <div class="param-left">
+              <div class="param-icon" style="background:#fde8e0">🌡️</div>
+              <div>
+                <div class="param-name">Température de consigne</div>
+                <div class="param-sub">Température désirée</div>
+              </div>
+            </div>
+            <div class="param-value val-temp" id="val-temp">22.0 °C</div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-min">16°C</span>
+            <input type="range" class="sl-temp" id="sl-temp" min="16" max="28" step="0.5" value="22"
+              oninput="updateVal('val-temp', this.value, '°C', 1)">
+            <span class="slider-max">28°C</span>
+          </div>
+        </div>
+
+        <!-- Éclairage -->
+        <div class="param-card">
+          <div class="param-top">
+            <div class="param-left">
+              <div class="param-icon" style="background:#fef6d6">💡</div>
+              <div>
+                <div class="param-name">Éclairage</div>
+                <div class="param-sub">Puissance d'éclairage</div>
+              </div>
+            </div>
+            <div class="param-value val-light" id="val-light">80 W</div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-min">0 W</span>
+            <input type="range" class="sl-light" id="sl-light" min="0" max="200" step="5" value="80"
+              oninput="updateVal('val-light', this.value, 'W', 0)">
+            <span class="slider-max">200 W</span>
+          </div>
+        </div>
+
+        <!-- Appareils électriques -->
+        <div class="param-card">
+          <div class="param-top">
+            <div class="param-left">
+              <div class="param-icon" style="background:#ede4f8">🔌</div>
+              <div>
+                <div class="param-name">Appareils électriques</div>
+                <div class="param-sub">Puissance des appareils</div>
+              </div>
+            </div>
+            <div class="param-value val-elec" id="val-elec">300 W</div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-min">0 W</span>
+            <input type="range" class="sl-elec" id="sl-elec" min="0" max="1000" step="10" value="300"
+              oninput="updateVal('val-elec', this.value, 'W', 0)">
+            <span class="slider-max">1000 W</span>
+          </div>
+        </div>
+
+        <div class="info-note">
+          <div class="info-icon">🌱</div>
+          <span>Ces paramètres influencent directement votre confort, la qualité de l'air et la consommation énergétique.</span>
+        </div>
+      </div>
+
+      <!-- ══ ENVIRONNEMENT (droite) ══ -->
+      <div class="params-section" id="envSection" style="position:relative">
+
+        <div class="section-header">
+          <div class="section-title">Paramètres environnementaux</div>
+          <div class="section-desc">Paramètres extérieurs et conditions initiales.</div>
+        </div>
+
+        <!-- Température ext -->
+        <div class="param-card">
+          <div class="param-top">
+            <div class="param-left">
+              <div class="param-icon" style="background:#daeeff">🌡️</div>
+              <div>
+                <div class="param-name">Température extérieure</div>
+                <div class="param-sub">Température ambiante extérieure</div>
+              </div>
+            </div>
+            <div class="param-value val-ext-temp" id="val-ext-temp">30.0 °C</div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-min">-10°C</span>
+            <input type="range" class="sl-ext-temp" id="sl-ext-temp" min="-10" max="50" step="0.5" value="30"
+              oninput="updateVal('val-ext-temp', this.value, '°C', 1)">
+            <span class="slider-max">50°C</span>
+          </div>
+        </div>
+
+        <!-- CO2 ext -->
+        <div class="param-card">
+          <div class="param-top">
+            <div class="param-left">
+              <div class="param-icon" style="background:#d8f0e3">🌿</div>
+              <div>
+                <div class="param-name">CO₂ extérieur</div>
+                <div class="param-sub">Niveau de CO₂ ambiant</div>
+              </div>
+            </div>
+            <div class="param-value val-co2" id="val-co2">500 ppm</div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-min">300</span>
+            <input type="range" class="sl-co2" id="sl-co2" min="300" max="2000" step="10" value="500"
+              oninput="updateVal('val-co2', this.value, 'ppm', 0)">
+            <span class="slider-max">2000</span>
+          </div>
+        </div>
+
+        <!-- Humidité ext -->
+        <div class="param-card">
+          <div class="param-top">
+            <div class="param-left">
+              <div class="param-icon" style="background:#d8eaf8">💧</div>
+              <div>
+                <div class="param-name">Humidité extérieure</div>
+                <div class="param-sub">Humidité relative ambiante</div>
+              </div>
+            </div>
+            <div class="param-value val-hum" id="val-hum">0.010 kg/m³</div>
+          </div>
+          <div class="slider-row">
+            <span class="slider-min">0.001</span>
+            <input type="range" class="sl-hum" id="sl-hum" min="0.001" max="0.020" step="0.001" value="0.010"
+              oninput="updateVal('val-hum', this.value, 'kg/m³', 3)">
+            <span class="slider-max">0.020</span>
+          </div>
+        </div>
+
+        <div class="info-note admin-note">
+          <div class="info-icon">ℹ️</div>
+          <span>Ces paramètres sont utilisés par la simulation pour calculer les conditions intérieures.</span>
+        </div>
+
+        <!-- LOCK OVERLAY (affiché si user) -->
+        <div class="section-lock-banner" id="envLockBanner" style="display:none">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="currentColor"/></svg>
+          <p><strong>Accès restreint</strong><br>Ces paramètres sont réservés aux administrateurs.</p>
+        </div>
+      </div>
+
+    </div><!-- /params-grid -->
+  </div><!-- /content -->
+
+  <!-- FOOTER BAR -->
+  <div class="footer-bar">
+    <button class="btn-reset" onclick="resetParams()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="1 4 1 10 7 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.51 15a9 9 0 1 0 .49-4.95" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Réinitialiser
+    </button>
+    <button class="btn-save" onclick="saveParams()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><polygon points="5 3 19 12 5 21 5 3" fill="white"/></svg>
+      Enregistrer &amp; Lancer la simulation
+    </button>
+  </div>
+
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="white" stroke-width="1.8" stroke-linecap="round"/><polyline points="22 4 12 14.01 9 11.01" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastMsg">Paramètres enregistrés !</span>
+</div>
+
+<script>
+  // ── PREMIERE LIGNE DU SCRIPT ──
+(function authGuard() {
+    const role = sessionStorage.getItem('rt_role');
+    const user = sessionStorage.getItem('rt_user');
+    if (!role || !user) {
+        window.location.replace('login-pfe.html');
+    }
+})();
+  // ─── Lecture du rôle ───────────────────────────────────────────────
+  // Priorité : sessionStorage (mis par login.html) > paramètre URL
+  function getRole() {
+    let role = sessionStorage.getItem('rt_role');
+    if (!role) {
+      const params = new URLSearchParams(window.location.search);
+      role = params.get('role') || 'user';
+      sessionStorage.setItem('rt_role', role);
+    }
+    return role;
+  }
+
+  function getUserName() {
+    return sessionStorage.getItem('rt_user') || 'Utilisateur';
+  }
+
+  const role = getRole();
+  const isAdmin = role === 'admin';
+
+  // ─── Horloge ──────────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clockEl').textContent =
+      now.getHours().toString().padStart(2,'0') + ':' +
+      now.getMinutes().toString().padStart(2,'0');
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // ─── Infos utilisateur ────────────────────────────────────────────
+  (function initUser() {
+    const nameEl   = document.getElementById('userNameEl');
+    const roleEl   = document.getElementById('userRoleEl');
+    const avatarEl = document.getElementById('avatarEl');
+
+    const name = isAdmin ? 'Admin M.' : 'User M.';
+    const initials = isAdmin ? 'AM' : 'UM';
+    nameEl.textContent   = name;
+    roleEl.textContent   = isAdmin ? 'Administrateur' : 'Utilisateur';
+    avatarEl.textContent = initials;
+  })();
+
+  // ─── Accès conditionnel ───────────────────────────────────────────
+  (function applyAccess() {
+    if (isAdmin) {
+      // Admin : tout visible
+      document.getElementById('adminTab').classList.remove('locked');
+      document.getElementById('adminTab').classList.add('inactive');
+      document.getElementById('adminLockBadge').style.display = 'none';
+      // Changer icône admin tab
+      document.getElementById('adminTabIcon').querySelectorAll('path').forEach(p => {
+        p.setAttribute('stroke','#243d31');
+      });
+    } else {
+      // User : section env verrouillée
+      document.getElementById('adminTab').classList.add('locked');
+      document.getElementById('adminLockBadge').style.display = 'flex';
+      document.getElementById('envLockBanner').style.display = 'flex';
+    }
+  })();
+
+  // ─── Sliders ──────────────────────────────────────────────────────
+  function updateVal(id, val, unit, decimals) {
+    document.getElementById(id).textContent = parseFloat(val).toFixed(decimals) + ' ' + unit;
+  }
+
+  // ─── Reset ────────────────────────────────────────────────────────
+  const defaults = {
+    'sl-temp':22,'sl-light':80,'sl-elec':300,
+    'sl-ext-temp':30,'sl-co2':500,'sl-hum':0.010
+  };
+  const valMap = {
+    'sl-temp':['val-temp','°C',1],
+    'sl-light':['val-light','W',0],
+    'sl-elec':['val-elec','W',0],
+    'sl-ext-temp':['val-ext-temp','°C',1],
+    'sl-co2':['val-co2','ppm',0],
+    'sl-hum':['val-hum','kg/m³',3]
+  };
+
+  function resetParams() {
+    Object.keys(defaults).forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.value = defaults[id]; }
+      const [valId, unit, dec] = valMap[id];
+      updateVal(valId, defaults[id], unit, dec);
+    });
+    showToast('Paramètres réinitialisés');
+  }
+
+  // ─── Save ─────────────────────────────────────────────────────────
+async function saveParams() {
+    const settings = {
+        T_setpoint: parseFloat(document.getElementById('sl-temp').value),
+        PLIGHTING: parseFloat(document.getElementById('sl-light').value),
+        PDEVICE: parseFloat(document.getElementById('sl-elec').value),
+        T_EXT: isAdmin ? parseFloat(document.getElementById('sl-ext-temp').value) : 30,
+        CO2_EXT2: isAdmin ? parseFloat(document.getElementById('sl-co2').value) : 500,
+        H_EXT: isAdmin ? parseFloat(document.getElementById('sl-hum').value) : 0.01
+    };
+
+    console.log("📤 SETTINGS ENVOYÉS :", settings);
+
+    showToast('⏳ Simulation en cours...');
+    document.querySelector('.btn-save').disabled = true;
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/settings", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(settings)
+        });
+
+        const result = await response.json();
+
+        console.log("📥 RÉPONSE BACKEND :", result);
+
+        if (result.error) {
+            showToast('❌ ' + result.error);
+        } else {
+            showToast('✅ Simulation terminée !');
+
+            setTimeout(() => {
+                window.location.href = 'dashboard-pfe.html';
+            }, 1500);
+        }
+
+    } catch (err) {
+        console.error(err);
+        showToast('❌ Erreur connexion backend');
+    }
+
+    document.querySelector('.btn-save').disabled = false;
+}
+  // ─── Toast ────────────────────────────────────────────────────────
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ─── Logout ───────────────────────────────────────────────────────
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = 'login-pfe.html';
+  }
+</script>
+</body>
+</html>

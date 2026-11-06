@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>RoomTwin — Dashboard Interactif Premium</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        link[rel="icon"] { border-radius: 10px; }
+        :root {
+            --gd: #243d31; --gm: #2f5543; --gs: #7dbf96; --gs2: #9bc8ac;
+            --bd: #c9b89a; --bm: #ddd0b8; --bc: #faf5ec; --bcc: #f5ede0;
+            --danger: #b24545; --blue: #3d7fa8;
+            --bg: var(--bc); --card: #ffffff; --accent: var(--gm);
+            --accent-light: var(--gs); --accent-pale: rgba(125,191,150,.12);
+            --warm: var(--bd); --text: var(--gd); --text-sub: #5a7060;
+            --text-muted: #a8bdb4; --radius: 20px; --radius-sm: 14px;
+            --sidebar-w: 220px; --shadow: 0 2px 16px rgba(36,61,49,.07);
+            --shadow-hover: 0 10px 32px rgba(36,61,49,.13); --gap: 22px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bc); color: var(--gd); display: flex; min-height: 100vh; }
+
+        .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: linear-gradient(180deg, #fff 0%, var(--bcc) 100%); border-right: 1px solid rgba(201,184,154,.3); display: flex; flex-direction: column; padding: 24px 0; position: fixed; top: 0; left: 0; bottom: 0; height: 100vh; z-index: 200; }
+        .logo-row { display: flex; align-items: center; gap: 11px; padding: 0 20px 24px; border-bottom: 1px solid rgba(201,184,154,.2); }
+        .logo-box { width: 36px; height: 36px; background: linear-gradient(145deg, var(--gm), var(--gd)); border-radius: 10px; display: grid; grid-template-columns: repeat(2,1fr); gap: 2px; padding: 5px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(36,61,49,.18); }
+        .sq { border-radius: 2px; } .s1 { background: rgba(255,255,255,.4); } .s2 { background: rgba(255,255,255,.7); } .s3 { background: rgba(255,255,255,.85); } .s4 { background: var(--bd); }
+        .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 500; color: var(--gd); }
+        .brand-sub { font-size: 9px; color: var(--gs); letter-spacing: 2px; text-transform: uppercase; }
+        .nav-section-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--bd); padding: 20px 20px 8px; }
+        .nav-group { width: 100%; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 20px; font-size: 13px; color: #5a7060; cursor: pointer; border-radius: 0; transition: all .2s; text-decoration: none; border-left: 3px solid transparent; width: 100%; font-family: 'DM Sans', sans-serif; }
+        .nav-item svg { flex-shrink: 0; opacity: .7; }
+        .nav-item:hover { background: rgba(125,191,150,.08); color: var(--gd); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(47,85,67,.1), transparent); color: var(--gd); font-weight: 500; border-left: 3px solid var(--gm); }
+        .nav-item.active svg { opacity: 1; }
+        .nav-bottom { width: 100%; border-top: 1px solid rgba(201,184,154,.2); padding-top: 8px; }
+        .btn-logout { display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--danger); cursor: pointer; background: none; border: none; padding: 11px 20px; border-radius: 0; transition: background .2s; width: 100%; font-family: 'DM Sans', sans-serif; }
+        .btn-logout:hover { background: rgba(178,69,69,.07); }
+
+        .main-content { margin-left: var(--sidebar-w); flex: 1; padding: 0; display: flex; flex-direction: column; }
+        header { height: 64px; background: rgba(255,255,255,.88); border-bottom: 1px solid rgba(201,184,154,.22); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 5; }
+        .header-left h1 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 400; color: var(--gd); display: flex; align-items: center; gap: 8px; }
+        .header-left h1 em { font-style: italic; color: var(--gm); }
+        .header-left p { font-size: 11px; color: #8a9e93; margin-top: 2px; }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .time-badge { font-size: 13px; font-weight: 500; color: var(--gd); background: rgba(36,61,49,.06); padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(36,61,49,.1); font-variant-numeric: tabular-nums; }
+        .user-pill { display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.7); border: 1px solid rgba(201,184,154,.35); border-radius: 30px; padding: 5px 14px 5px 5px; }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--gm), var(--gd)); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 500; }
+        .user-name { font-size: 12px; font-weight: 500; color: var(--gd); }
+
+        #sim-banner { display: none; position: sticky; top: 64px; background: linear-gradient(90deg,#2f5543,#243d31); color: white; padding: 10px 32px; font-size: 13px; font-weight: 500; align-items: center; gap: 10px; z-index: 4; }
+        #sim-banner.show { display: flex; }
+        .sim-dot { width: 8px; height: 8px; border-radius: 50%; background: #7dbf96; animation: blink 1s ease-in-out infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+        .dash-inner { padding: 28px 32px 40px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--gap); }
+        .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); cursor: pointer; transition: transform 0.22s ease, box-shadow 0.22s ease; overflow: hidden; position: relative; animation: fadeUp 0.4s ease both; }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .card:nth-child(1){animation-delay:.04s} .card:nth-child(2){animation-delay:.08s} .card:nth-child(3){animation-delay:.12s} .card:nth-child(4){animation-delay:.16s} .card:nth-child(5){animation-delay:.20s} .card:nth-child(6){animation-delay:.24s} .card:nth-child(7){animation-delay:.28s} .card:nth-child(8){animation-delay:.32s} .card:nth-child(9){animation-delay:.36s} .card:nth-child(10){animation-delay:.40s}
+
+        .stat-card { grid-column: span 2; padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 10px; }
+        .stat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .stat-meta { display: flex; flex-direction: column; gap: 2px; }
+        .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); }
+        .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+        .stat-delta { font-size: 11.5px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+        .delta-ok { color: var(--accent-light); } .delta-warn { color: var(--warm); }
+
+        .image-card { grid-column: span 5; grid-row: span 2; padding: 0; position: relative; min-height: 340px; }
+        .image-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .image-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,28,20,0.65) 0%, rgba(15,28,20,0.15) 45%, transparent 70%); }
+        .live-badge { position: absolute; top: 18px; left: 18px; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); padding: 5px 13px; border-radius: 50px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--danger); display: flex; align-items: center; gap: 6px; }
+        .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); animation: blink 1.4s ease-in-out infinite; }
+        .image-caption { position: absolute; bottom: 22px; left: 22px; right: 22px; }
+        .image-caption h3 { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: white; font-weight: 400; }
+        .image-caption p { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 3px; }
+
+        .comfort-card { grid-column: span 3; padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+        .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+        .comfort-face { font-size: 40px; line-height: 1; }
+        .comfort-state { font-family: 'Cormorant Garamond', serif; font-size: 28px; color: var(--accent); font-style: italic; line-height: 1; }
+        .comfort-sub { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
+        .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .tag { background: var(--accent-pale); color: var(--accent); font-size: 11px; font-weight: 600; padding: 4px 11px; border-radius: 50px; }
+
+        .energy-card { grid-column: span 4; padding: 24px 24px 18px; }
+        .energy-main { display: flex; align-items: baseline; gap: 6px; margin: 10px 0 4px; }
+        .energy-num { font-family: 'Cormorant Garamond', serif; font-size: 44px; color: var(--text); line-height: 1; }
+        .energy-unit { font-size: 18px; color: var(--text-sub); font-weight: 400; }
+        .energy-delta { font-size: 13.5px; color: var(--accent-light); font-weight: 500; }
+
+        .hvac-card { grid-column: span 3; padding: 24px; }
+        .hvac-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 0; border-bottom: 1px solid #f2f2f2; }
+        .hvac-row:last-child { border-bottom: none; }
+        .hvac-left { display: flex; align-items: center; gap: 11px; }
+        .hvac-icon { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .hvac-name { font-size: 14px; font-weight: 600; color: var(--text); }
+        .hvac-status-text { font-size: 12px; color: var(--accent-light); font-weight: 500; margin-top: 1px; }
+        .dots { display: flex; gap: 4px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-light); }
+        .dot.off { background: #dde5e0; }
+
+        .air-card { grid-column: span 5; padding: 24px; }
+        .air-main { display: flex; align-items: center; gap: 28px; margin-top: 14px; }
+        .air-value-block { flex-shrink: 0; }
+        .air-num { font-family: 'Cormorant Garamond', serif; font-size: 48px; color: var(--accent); line-height: 1; }
+        .air-unit { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .air-label { font-size: 15px; font-weight: 600; color: var(--accent); margin-top: 6px; }
+        .air-bar-wrap { flex: 1; }
+        .air-bar { height: 10px; border-radius: 10px; background: linear-gradient(to right, #5aad72 0%, #a8d96a 35%, #f5c842 60%, #e8804a 80%, #d9453f 100%); position: relative; }
+        .air-pointer { position: absolute; top: -5px; width: 4px; height: 20px; background: var(--text); border-radius: 3px; left: 28%; transition: left 1s ease; }
+        .air-ticks { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--text-muted); }
+
+        .summary-card { grid-column: span 7; padding: 22px 26px; display: flex; align-items: center; gap: 28px; }
+        .summary-icon { font-size: 32px; }
+        .summary-text h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .summary-text p { font-size: 13px; color: var(--text-sub); line-height: 1.5; }
+
+        .bg-green{background:#eaf2ed} .bg-warm{background:#f5eddf} .bg-red{background:#fbeaea} .bg-blue{background:#e5f0f8} .bg-purple{background:#eeeaf5}
+        .c-green{color:var(--accent)} .c-warm{color:var(--warm)} .c-red{color:var(--danger)} .c-blue{color:var(--blue)}
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(10,22,16,0.6); backdrop-filter: blur(14px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; width: 82%; max-width: 940px; height: 72vh; border-radius: var(--radius); padding: 42px 40px 36px; position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.2); }
+        .close-modal { position: absolute; top: 22px; right: 26px; cursor: pointer; font-size: 28px; color: var(--text-muted); line-height: 1; transition: color 0.2s; font-weight: 300; }
+        .close-modal:hover { color: var(--text); }
+        #full-graph { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="logo-row">
+        <div class="logo-box"><div class="sq s1"></div><div class="sq s2"></div><div class="sq s3"></div><div class="sq s4"></div></div>
+        <div><div class="brand-name">RoomTwin</div><div class="brand-sub">Digital Twin</div></div>
+    </div>
+    <div class="nav-section-label">Navigation</div>
+    <nav class="nav-group">
+        <a class="nav-item active" href="dashboard-pfe.html">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="1.6"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="1.6"/></svg>
+            Accueil
+        </a>
+        <a class="nav-item" href="parametre-pfe.html">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.6"/></svg>
+            Paramètres
+        </a>
+        <a class="nav-item" href="detection-pfe.html">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            Détection
+        </a>
+    </nav>
+    <div class="nav-bottom">
+        <button class="btn-logout" onclick="logout()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Déconnexion
+        </button>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header>
+        <div class="header-left">
+            <h1>Welcome <em>home</em> ✦</h1>
+            <p>PFE Digital Twin Monitoring · Smart Room</p>
+        </div>
+        <div class="header-right">
+            <div class="time-badge" id="clock">--:--</div>
+            <div class="user-pill">
+                <div class="user-avatar" id="dashAvatarEl">UM</div>
+                <span class="user-name" id="dashUserEl">User M.</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="sim-banner">
+        <div class="sim-dot"></div>
+        <span id="sim-msg">Simulation en cours — données précédentes affichées</span>
+    </div>
+
+    <div class="dash-inner">
+    <div class="dashboard-grid">
+
+        <div class="card stat-card" onclick="showGraph('temperature_air','Température Air (°C)')">
+            <div class="stat-icon bg-green">🌡️</div>
+            <div class="stat-meta"><span class="stat-label">Temp. Air</span><span class="stat-value c-green" id="val-temp">--</span><span class="stat-delta delta-ok" id="delta-temp">--</span></div>
+        </div>
+        <div class="card stat-card" onclick="showGraph('temperature_mur','Température Mur (°C)')">
+            <div class="stat-icon bg-warm">🧱</div>
+            <div class="stat-meta"><span class="stat-label">Temp. Mur</span><span class="stat-value c-warm" id="val-mur">--</span><span class="stat-delta delta-ok" id="delta-mur">--</span></div>
+        </div>
+        <div class="card stat-card" onclick="showGraph('chauffage','Puissance Chauffage (W)')">
+            <div class="stat-icon bg-red">⚡</div>
+            <div class="stat-meta"><span class="stat-label">Chauffage</span><span class="stat-value c-red" id="val-chauffage">--</span><span class="stat-delta delta-ok" id="delta-chauffage">--</span></div>
+        </div>
+        <div class="card stat-card" onclick="showGraph('clim','Puissance Climatisation (W)')">
+            <div class="stat-icon bg-blue">❄️</div>
+            <div class="stat-meta"><span class="stat-label">Climatisation</span><span class="stat-value c-blue" id="val-clim">--</span><span class="stat-delta delta-ok" id="delta-clim">--</span></div>
+        </div>
+        <div class="card stat-card" onclick="showGraph('humidity','Humidité (kg/m³)')">
+            <div class="stat-icon bg-blue">💧</div>
+            <div class="stat-meta"><span class="stat-label">Humidité</span><span class="stat-value c-blue" id="val-hum">--</span><span class="stat-delta delta-warn" id="delta-hum">--</span></div>
+        </div>
+        <div class="card stat-card" onclick="showGraph('co2','CO₂ (ppm)')">
+            <div class="stat-icon" style="background:#eaf0f5">🌿</div>
+            <div class="stat-meta"><span class="stat-label">CO₂</span><span class="stat-value" style="color:#3d7fa8" id="val-co2">--</span><span class="stat-delta delta-ok" id="delta-co2">--</span></div>
+        </div>
+
+        <div class="card image-card">
+            <img src="CalmBedroom.jpg" alt="Aperçu de la chambre">
+            <div class="image-overlay"></div>
+            <div class="live-badge"><div class="live-dot"></div>EN LIGNE</div>
+            <div class="image-caption"><h3>Aperçu de la pièce</h3><p>Chambre principale · Temps réel</p></div>
+        </div>
+
+        <div class="card comfort-card">
+            <div class="section-label">État du confort</div>
+            <div class="comfort-face" id="comfort-face">😊</div>
+            <div><div class="comfort-state" id="comfort-state">--</div><div class="comfort-sub" id="comfort-sub">--</div></div>
+            <div class="tag-row">
+                <span class="tag" id="tag-temp">--</span><span class="tag" id="tag-hum">--</span>
+                <span class="tag" id="tag-air">--</span><span class="tag" id="tag-energy">--</span>
+            </div>
+        </div>
+
+        <div class="card energy-card" onclick="showGraph('energy_signal','Énergie Totale (W)')">
+            <div class="section-label">Énergie consommée</div>
+            <div class="energy-main"><span class="energy-num" id="val-energy">--</span><span class="energy-unit">W</span></div>
+            <div class="energy-delta">Consommation instantanée</div>
+            <div id="energy-mini-chart" style="height:120px;width:100%"></div>
+        </div>
+
+        <div class="card hvac-card">
+            <div class="section-label" style="margin-bottom:6px">Système HVAC</div>
+            <div id="hvac-global-status" style="font-size:13px;color:var(--text-sub);margin:6px 0 10px">--</div>
+            <div class="hvac-row">
+                <div class="hvac-left"><div class="hvac-icon bg-red">🔥</div><div><div class="hvac-name">Chauffage</div><div class="hvac-status-text" id="heat-status">● Inactif</div></div></div>
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot off"></div></div>
+            </div>
+            <div class="hvac-row">
+                <div class="hvac-left"><div class="hvac-icon bg-blue">❄️</div><div><div class="hvac-name">Climatisation</div><div class="hvac-status-text" id="cool-status">● Inactif</div></div></div>
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot off"></div></div>
+            </div>
+        </div>
+
+        <div class="card air-card" onclick="showGraph('co2','Qualité Air — CO₂')">
+            <div class="section-label">Qualité de l'air</div>
+            <div class="air-main">
+                <div class="air-value-block"><div class="air-num" id="gauge-ppm">--</div><div class="air-unit">ppm CO₂</div><div class="air-label" id="air-label">--</div></div>
+                <div class="air-bar-wrap">
+                    <div class="air-bar"><div class="air-pointer" id="air-pointer"></div></div>
+                    <div class="air-ticks"><span>400 Excellent</span><span>600 Bon</span><span>1000 Moyen</span><span>1500+ Mauvais</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card summary-card" style="cursor:default">
+            <div class="summary-icon">📋</div>
+            <div class="summary-text"><h4>Résumé rapide</h4><p id="summary-message">--</p></div>
+        </div>
+
+    </div>
+    </div>
+</main>
+
+<div id="graphModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">×</span>
+        <div id="full-graph" style="width:100%;height:100%"></div>
+    </div>
+</div>
+
+<script>
+// ── Auth guard ──────────────────────────────────────────────────
+(function(){
+    if (!sessionStorage.getItem('rt_role'))
+        window.location.replace('login-pfe.html');
+})();
+
+const CACHE_KEY = 'rt_data_cache';
+function getCache() { try { return JSON.parse(sessionStorage.getItem(CACHE_KEY)); } catch { return null; } }
+function setCache(data) { try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch {} }
+
+// ── Clock ───────────────────────────────────────────────────────
+function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+        String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── User ────────────────────────────────────────────────────────
+(function() {
+    const isAdmin = sessionStorage.getItem('rt_role') === 'admin';
+    document.getElementById('dashUserEl').textContent   = isAdmin ? 'Admin M.' : 'User M.';
+    document.getElementById('dashAvatarEl').textContent = isAdmin ? 'AM' : 'UM';
+})();
+
+// ── Helpers ─────────────────────────────────────────────────────
+let globalData = null;
+
+function safeArr(v) {
+    if (Array.isArray(v)) return v;
+    if (v !== null && v !== undefined) return [v];
+    return [];
+}
+function safeLast(v) { const a = safeArr(v); return a.length ? a[a.length-1] : null; }
+
+function updateDelta(id, values, unit, decimals) {
+    const a = safeArr(values);
+    const el = document.getElementById(id);
+    if (a.length < 2) { el.textContent = '--'; return; }
+    const now    = a[a.length - 1];
+    const before = a[Math.max(0, a.length - 1 - Math.min(60, a.length-1))];
+    const diff   = now - before;
+    const ref    = Math.max(Math.abs(now), Math.abs(before), 1);
+    if (Math.abs(diff) < ref * 0.01) { el.textContent = 'Stable'; return; }
+    el.textContent = `${diff>0?'↑':'↓'} ${diff>0?'+':''}${diff.toFixed(decimals)} ${unit}`;
+}
+
+function updateEnergyMiniChart(data) {
+    const arr = safeArr(data.energy_signal);
+    const t   = safeArr(data.time);
+    if (!arr.length) return;
+    const x = t.slice(-6), y = arr.slice(-6);
+    Plotly.react('energy-mini-chart', [{
+        x, y, type:'bar',
+        marker:{color:['#ffb347','#ff5fa2','#d36bff','#7b5cff','#5a2dbf','#3d1b8a'],opacity:.95}
+    }], {
+        paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+        height:120, margin:{t:5,b:30,l:35,r:5},
+        xaxis:{showgrid:false, tickfont:{size:10,color:'#a8bdb4'}},
+        yaxis:{showgrid:true, gridcolor:'#eee', rangemode:'tozero', tickfont:{size:10}},
+        bargap:.25, showlegend:false
+    }, {displayModeBar:false, responsive:true});
+}
+
+// ── Render ──────────────────────────────────────────────────────
+function render(data) {
+    if (!data) return;
+    globalData = data;
+
+    const banner = document.getElementById('sim-banner');
+    if (data.simulation_running) banner.classList.add('show');
+    else banner.classList.remove('show');
+
+    const tempAir   = safeLast(data.temperature_air);
+    const tempMur   = safeLast(data.temperature_mur);
+    const chauffage = safeLast(data.chauffage);
+    const clim      = safeLast(data.clim);
+    const hum       = safeLast(data.humidity);
+    const co2raw    = safeLast(data.co2);
+    const energy    = safeLast(data.energy_signal);
+
+    if (tempAir === null) return;
+    const co2 = Math.round(co2raw);
+
+    document.getElementById('val-temp').textContent      = tempAir.toFixed(1) + ' °C';
+    document.getElementById('val-mur').textContent       = tempMur.toFixed(1) + ' °C';
+    document.getElementById('val-chauffage').textContent = chauffage.toFixed(0) + ' W';
+    document.getElementById('val-clim').textContent      = clim.toFixed(0) + ' W';
+    document.getElementById('val-hum').textContent       = hum.toFixed(3) + ' kg/m³';
+    document.getElementById('val-co2').textContent       = co2 + ' ppm';
+    document.getElementById('val-energy').textContent    = energy.toFixed(0);
+
+    updateDelta('delta-temp',      data.temperature_air, '°C', 1);
+    updateDelta('delta-mur',       data.temperature_mur, '°C', 1);
+    updateDelta('delta-chauffage', data.chauffage,       'W',  1);
+    updateDelta('delta-clim',      data.clim,            'W',  1);
+    updateDelta('delta-hum',       data.humidity,        'kg/m³', 3);
+    updateDelta('delta-co2',       data.co2,             'ppm', 0);
+
+    updateEnergyMiniChart(data);
+
+    document.getElementById('gauge-ppm').textContent = co2;
+    const pct = Math.min(Math.max((co2-400)/1100, 0), 1);
+    document.getElementById('air-pointer').style.left = (pct*90) + '%';
+    document.getElementById('air-label').textContent =
+        co2 < 900 ? '🍃 Bonne' : co2 < 1400 ? '⚠️ Moyenne' : '🚨 Mauvaise';
+
+    let face, state, sub;
+    if (tempAir>=20 && tempAir<=24 && hum>=0.008 && hum<=0.02 && co2<900) {
+        face='😊'; state='Confortable'; sub='Conditions optimales';
+    } else if (tempAir>=19 && tempAir<=28 && hum>=0.006 && hum<=0.03 && co2<1200) {
+        face='😐'; state='Acceptable'; sub='Conditions correctes';
+    } else {
+        face='😓'; state='Inconfortable'; sub='Conditions dégradées';
+    }
+    document.getElementById('comfort-face').textContent  = face;
+    document.getElementById('comfort-state').textContent = state;
+    document.getElementById('comfort-sub').textContent   = sub;
+
+    document.getElementById('tag-temp').textContent =
+        tempAir>=20&&tempAir<=24 ? '✔ Température idéale' :
+        tempAir>=18&&tempAir<=27 ? '⚠ Température acceptable' : '✖ Inconfortable';
+    document.getElementById('tag-hum').textContent =
+        hum>=0.008&&hum<=0.014 ? '✔ Humidité normale' :
+        hum>=0.006&&hum<=0.020 ? '⚠ Humidité acceptable' :
+        hum<0.006 ? '✖ Air trop sec' : '✖ Humidité excessive';
+    document.getElementById('tag-air').textContent =
+        co2<900 ? '✔ Air sain' : co2<1400 ? '⚠ Air moyen' : '✖ Air pollué';
+    document.getElementById('tag-energy').textContent =
+        chauffage<80&&clim<80 ? '✔ Énergie modérée' :
+        chauffage<250&&clim<250 ? '⚠ Consommation moyenne' : '✖ Énergie élevée';
+
+    document.getElementById('summary-message').textContent =
+        state==='Confortable' ? 'Toutes les conditions sont optimales. Le système fonctionne normalement.' :
+        state==='Acceptable'  ? 'Les conditions sont correctes, mais certains paramètres peuvent être améliorés.' :
+        'La pièce est inconfortable. Vérifiez la température, l\'humidité ou la qualité de l\'air.';
+
+    if (chauffage<=1&&clim<=1) {
+        document.getElementById('hvac-global-status').textContent = 'Mode actuel : Système arrêté';
+        document.getElementById('heat-status').textContent = '● Inactif';
+        document.getElementById('cool-status').textContent = '● Inactif';
+    } else if (chauffage>clim) {
+        document.getElementById('hvac-global-status').textContent = 'Mode actuel : Chauffage actif';
+        document.getElementById('heat-status').textContent = '● Actif';
+        document.getElementById('cool-status').textContent = '● Inactif';
+    } else {
+        document.getElementById('hvac-global-status').textContent = 'Mode actuel : Climatisation active';
+        document.getElementById('heat-status').textContent = '● Inactif';
+        document.getElementById('cool-status').textContent = '● Actif';
+    }
+}
+
+// ── Fetch ───────────────────────────────────────────────────────
+function fetchData() {
+    const cached = getCache();
+    if (cached) render(cached);
+
+    fetch('http://127.0.0.1:8000/data')
+        .then(res => res.status === 404 ? null : res.json())
+        .then(data => {
+            if (!data) return;
+            setCache(data);
+            render(data);
+        })
+        .catch(() => {});
+}
+
+// ── Graph modal ─────────────────────────────────────────────────
+// Définition des graphes : chaque clé → une ou plusieurs courbes à afficher
+const GRAPH_CONFIG = {
+    temperature_air: {
+        traces: [
+            { key: 'temperature_air',      name: 'Air modèle',   color: '#3d6b50', dash: 'solid' },
+            
+        ]
+    },
+    temperature_mur: {
+        traces: [
+            { key: 'temperature_mur',      name: 'Mur modèle',   color: 'RED', dash: 'SOLID' },
+            
+        ]
+    },
+    chauffage: {
+        traces: [
+            { key: 'chauffage', name: 'Chauffage (W)', color: '#e07a5f', dash: 'solid' }
+        ]
+    },
+    clim: {
+        traces: [
+            { key: 'clim', name: 'Climatisation (W)', color: '#3d7fa8', dash: 'solid' }
+        ]
+    },
+    humidity: {
+        traces: [
+            { key: 'humidity', name: 'Humidité (kg/m³)', color: '#6baed6', dash: 'solid' }
+        ]
+    },
+    co2: {
+        traces: [
+            { key: 'co2', name: 'CO₂ (ppm)', color: '#74a892', dash: 'solid' }
+        ]
+    },
+    energy_signal: {
+        traces: [
+            { key: 'energy_signal', name: 'Énergie (W)', color: '#9b59b6', dash: 'solid' }
+        ]
+    }
+};
+
+function showGraph(key, title) {
+    if (!globalData) return;
+
+    const config = GRAPH_CONFIG[key];
+    if (!config) return;
+
+    const t = safeArr(globalData.time);
+    const traces = [];
+
+    config.traces.forEach(cfg => {
+        const yData = safeArr(globalData[cfg.key]);
+        // N'ajouter la courbe que si les données existent
+        if (yData.length > 0) {
+            traces.push({
+                x: t,
+                y: yData,
+                name: cfg.name,
+                mode: 'lines',
+                line: { color: cfg.color, width: 2.5, dash: cfg.dash }
+            });
+        }
+    });
+
+    if (traces.length === 0) return;
+
+    document.getElementById('graphModal').style.display = 'flex';
+
+    Plotly.newPlot('full-graph', traces, {
+        title: { text: title, font: { size: 18, color: '#18261e' } },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor:  'rgba(0,0,0,0)',
+        xaxis: { title: 'Temps (s)', gridcolor: '#f0f2ee' },
+        yaxis: { gridcolor: '#f0f2ee' },
+        legend: { orientation: 'h', y: 1.12 },
+        margin: { t: 55, b: 40, l: 50, r: 20 }
+    }, { displayModeBar: true, responsive: true });
+}
+
+function closeModal() { document.getElementById('graphModal').style.display = 'none'; }
+window.onclick = e => { if (e.target === document.getElementById('graphModal')) closeModal(); }
+
+// ── Logout : efface UNIQUEMENT les clés auth, PAS le cache data ──
+function logout() {
+    const dataCache = sessionStorage.getItem('rt_data_cache');
+    sessionStorage.clear();
+    if (dataCache) sessionStorage.setItem('rt_data_cache', dataCache);
+    window.location.href = 'login-pfe.html';
+}
+
+setInterval(fetchData, 3000);
+fetchData();
+</script>
+</body>
+</html>
